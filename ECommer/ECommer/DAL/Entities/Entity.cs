@@ -7,7 +7,9 @@ namespace ECommer.DAL.Entities
         #region Properties
         [Key]
         public virtual Guid Id { get; set; }
+        [Display(Name = "Fecha de creacíon")]
         public virtual string? CreatedDate { get; set; }
+        [Display(Name = "Fecha de modificacíon")]
         public virtual string? ModifiedDate { get; set; }
         #endregion
     }
