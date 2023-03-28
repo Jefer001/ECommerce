@@ -5,7 +5,7 @@ namespace ECommer.DAL.Entities
     public class Country : Entity
     {
         #region Properties
-        [Display(Name = "Pais")]
+        [Display(Name = "País")]
         [MaxLength(50)]
         [Required(ErrorMessage = "El campo {0} es obligatorio")]
         public virtual string? Name { get; set; }
