@@ -13,6 +13,7 @@ namespace ECommer.DAL
 
         #region Properties
         public DbSet<Country> Countries { get; set; }
+        public DbSet<Category> Categories { get; set; }
         #endregion
 
         #region Protected methods
@@ -20,6 +21,7 @@ namespace ECommer.DAL
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Country>().HasIndex(c => c.Name).IsUnique();
+            modelBuilder.Entity<Category>().HasIndex(c => c.Name).IsUnique();
         }
         #endregion
     }

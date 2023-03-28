@@ -5,7 +5,7 @@
 namespace ECommer.Migrations
 {
     /// <inheritdoc />
-    public partial class ChangeDateTimeInCreatedDateAndModifiedDate2 : Migration
+    public partial class NewTableCategories : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
