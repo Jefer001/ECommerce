@@ -37,7 +37,7 @@ namespace ECommer.Controllers
             {
                 try
                 {
-                    category.CreatedDate = DateTime.Now.ToString();
+                    category.CreatedDate = DateTime.Now;
                     _context.Add(category);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -46,13 +46,9 @@ namespace ECommer.Controllers
                 catch (DbUpdateException dbUpdateException)
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
-                    {
                         ModelState.AddModelError(string.Empty, "Ya existe una categoría con el mismo nombre.");
-                    }
                     else
-                    {
                         ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
-                    }
                 }
                 catch (Exception exception)
                 {
@@ -65,16 +61,12 @@ namespace ECommer.Controllers
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            if (id == null || _context.Categories == null)
-            {
-                return NotFound();
-            }
+            if (id == null || _context.Categories == null) return NotFound();
 
             var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
+            
+            if (category == null) return NotFound();
+            
             return View(category);
         }
 
@@ -83,16 +75,13 @@ namespace ECommer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, Category category)
         {
-            if (id != category.Id)
-            {
-                return NotFound();
-            }
+            if (id != category.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    category.ModifiedDate = DateTime.Now.ToString();
+                    category.ModifiedDate = DateTime.Now;
                     _context.Update(category);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -100,13 +89,9 @@ namespace ECommer.Controllers
                 catch (DbUpdateException dbUpdateException)
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
-                    {
                         ModelState.AddModelError(string.Empty, "Ya existe una categoría con el mismo nombre.");
-                    }
                     else
-                    {
                         ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
-                    }
                 }
                 catch (Exception exception)
                 {
@@ -119,16 +104,11 @@ namespace ECommer.Controllers
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            if (id == null || _context.Categories == null)
-            {
-                return NotFound();
-            }
+            if (id == null || _context.Categories == null) return NotFound();
 
             var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
-            if (category == null)
-            {
-                return NotFound();
-            }
+            
+            if (category == null) return NotFound();
 
             return View(category);
         }
@@ -136,16 +116,11 @@ namespace ECommer.Controllers
         // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
-            if (id == null || _context.Categories == null)
-            {
-                return NotFound();
-            }
+            if (id == null || _context.Categories == null) return NotFound();
 
             var category = await _context.Categories.FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
-            {
-                return NotFound();
-            }
+            
+            if (category == null) return NotFound();
 
             return View(category);
         }
@@ -155,17 +130,14 @@ namespace ECommer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            if (_context.Categories == null)
-            {
-                return Problem("Entity set 'DataBaseContext.Categories'  is null.");
-            }
+            if (_context.Categories == null) return Problem("Entity set 'DataBaseContext.Categories'  is null.");
+            
             var category = await _context.Categories.FindAsync(id);
-            if (category != null)
-            {
-                _context.Categories.Remove(category);
-            }
+            
+            if (category != null) _context.Categories.Remove(category);
 
             await _context.SaveChangesAsync();
+            
             return RedirectToAction(nameof(Index));
         }
 
