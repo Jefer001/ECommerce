@@ -15,7 +15,7 @@
 <div>
     <a asp-action="AddCity" asp-route-stateId="@Model?.Id" class="btn btn-outline-primary">Agregar Ciudad</a>
     <a asp-action="EditState" asp-route-stateId="@Model?.Id" class="btn btn-outline-warning">Editar Dpto/Estado</a>
-    <a asp-action="Details" asp-route-id="@Model?.Id" class="btn btn-outline-success">Regresar</a>
+    <a asp-action="Details" asp-route-id="@Model?.Country.Id" class="btn btn-outline-success">Regresar</a>
 </div>
 <hr />
 <div class="row">

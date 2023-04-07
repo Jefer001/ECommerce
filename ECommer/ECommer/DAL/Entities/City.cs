@@ -8,6 +8,8 @@ namespace ECommer.DAL.Entities
         [MaxLength(50)]
         [Required(ErrorMessage = "El campo {0} es obligatorio")]
         public string Name { get; set; }
-        public State State { get; set; }
+
+		[Display(Name = "Estado")]
+		public State State { get; set; }
     }
 }

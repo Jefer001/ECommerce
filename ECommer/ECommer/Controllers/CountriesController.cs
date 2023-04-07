@@ -34,7 +34,8 @@ namespace ECommer.Controllers
             if (id == null || _context.Countries == null) return NotFound();
 
             var country = await _context.Countries
-				.Include(c => c.States)
+				.Include(s => s.States)
+				.ThenInclude(c => c.Cities)
 				.FirstOrDefaultAsync(m => m.Id == id);
 
             if (country == null) return NotFound();
@@ -420,18 +421,17 @@ namespace ECommer.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> DetailsCity(Guid? stateId)
+		public async Task<IActionResult> DetailsCity(Guid? cityId)
 		{
-			if (stateId == null || _context.States == null) return NotFound();
+			if (cityId == null || _context.Cities == null) return NotFound();
 
-			var state = await _context.States
-				.Include(c => c.Country)
-				.Include(c => c.Cities)
-				.FirstOrDefaultAsync(s => s.Id == stateId);
+			var city = await _context.Cities
+				.Include(c => c.State)
+				.FirstOrDefaultAsync(s => s.Id == cityId);
 
-			if (state == null) return NotFound();
+			if (city == null) return NotFound();
 
-			return View(state);
+			return View(city);
 		}
 
 		public async Task<IActionResult> DeleteCity(Guid? stateId)
