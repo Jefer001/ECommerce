@@ -255,5 +255,52 @@ namespace ECommer.Controllers
 			}
 			return View(stateViewModel);
 		}
+
+		[HttpGet]
+		public async Task<IActionResult> DetailsState(Guid? stateId)
+		{
+			if (stateId == null || _context.States== null) return NotFound();
+
+			var state = await _context.States
+				.Include(c => c.Country)
+                .Include(c => c.Cities)
+				.FirstOrDefaultAsync(s => s.Id == stateId);
+
+			if (state == null) return NotFound();
+
+			return View(state);
+		}
+
+		public async Task<IActionResult> DeleteState(Guid? stateId)
+		{
+			if (stateId == null || _context.Countries == null) return NotFound();
+
+			var state = await _context.States
+                .Include (c => c.Country)
+                .Include(c => c.Cities)
+                .FirstOrDefaultAsync(c => c.Id == stateId);
+
+			if (state == null) return NotFound();
+
+			return View(state);
+		}
+
+		[HttpPost, ActionName("DeleteState")]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeleteStateConfirmed(Guid stateId)
+		{
+			if (_context.States == null) return Problem("Entity set 'DataBaseContext.State'  is null.");
+
+			var state = await _context.States
+				.Include(c => c.Country)
+				.Include(c => c.Cities)
+				.FirstOrDefaultAsync(c => c.Id == stateId);
+
+			if (state != null) _context.States.Remove(state);
+
+			await _context.SaveChangesAsync();
+
+			return RedirectToAction(nameof(Details), new {id = state.Country.Id});
+		}
 	}
 }

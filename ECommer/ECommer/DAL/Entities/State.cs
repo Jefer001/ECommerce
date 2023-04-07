@@ -9,5 +9,11 @@ namespace ECommer.DAL.Entities
         [Required(ErrorMessage = "El campo {0} es obligatorio")]
         public string Name { get; set; }
         public Country Country { get; set; }
-    }
+
+		[Display(Name = "Ciudad")]
+		public ICollection<City> Cities { get; set; }
+
+		[Display(Name = "Número de ciudades")]
+		public int CitiesNumber => Cities == null ? 0 : Cities.Count;
+	}
 }
