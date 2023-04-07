@@ -363,51 +363,51 @@ namespace ECommer.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> EditCity(Guid? stateId)
+		public async Task<IActionResult> EditCity(Guid? cityId)
 		{
-			if (stateId == null || _context.States == null) return NotFound();
+			if (cityId == null || _context.Cities == null) return NotFound();
 
-			State state = await _context.States
-				.Include(c => c.Country)
-				.FirstOrDefaultAsync(s => s.Id == stateId);
+			City city = await _context.Cities
+				.Include(c => c.State)
+				.FirstOrDefaultAsync(s => s.Id == cityId);
 
-			if (state == null) return NotFound();
+			if (city == null) return NotFound();
 
-			StateViewModel stateViewModel = new()
+			CityViewModel cityViewModel = new()
 			{
-				CountryId = state.Country.Id,
-				Id = state.Id,
-				Name = state.Name,
-				CreatedDate = state.CreatedDate
+				StateId = city.State.Id,
+				Id = city.Id,
+				Name = city.Name,
+				CreatedDate = city.CreatedDate
 			};
-			return View(stateViewModel);
+			return View(cityViewModel);
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> EditCity(Guid countryId, StateViewModel stateViewModel)
+		public async Task<IActionResult> EditCity(Guid stateId, CityViewModel cityViewModel)
 		{
-			if (countryId != stateViewModel.CountryId) return NotFound();
+			if (stateId != cityViewModel.StateId) return NotFound();
 
 			if (ModelState.IsValid)
 			{
 				try
 				{
-					State state = new()
+					City city = new()
 					{
-						Id = stateViewModel.Id,
-						Name = stateViewModel.Name,
-						CreatedDate = stateViewModel.CreatedDate,
+						Id = cityViewModel.Id,
+						Name = cityViewModel.Name,
+						CreatedDate = cityViewModel.CreatedDate,
 						ModifiedDate = DateTime.Now
 					};
-					_context.Update(state);
+					_context.Update(city);
 					await _context.SaveChangesAsync();
-					return RedirectToAction(nameof(Index), new { Id = stateViewModel.CountryId });
+					return RedirectToAction(nameof(DetailsState), new { stateId = cityViewModel.StateId });
 				}
 				catch (DbUpdateException dbUpdateException)
 				{
 					if (dbUpdateException.InnerException.Message.Contains("duplicate"))
-						ModelState.AddModelError(string.Empty, "Ya existe un estado con el mismo nombre.");
+						ModelState.AddModelError(string.Empty, "Ya existe una ciudad con el mismo nombre.");
 					else
 						ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
 				}
@@ -416,7 +416,7 @@ namespace ECommer.Controllers
 					ModelState.AddModelError(string.Empty, ex.Message);
 				}
 			}
-			return View(stateViewModel);
+			return View(cityViewModel);
 		}
 
 		[HttpGet]
