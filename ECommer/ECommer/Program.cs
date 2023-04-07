@@ -10,7 +10,23 @@ builder.Services.AddDbContext<DataBaseContext>(o => o.UseSqlServer(builder.Confi
 
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
+//Builder para llamar la clase SeederDB.cs
+builder.Services.AddTransient<SeederBD>();
+
 var app = builder.Build();
+
+SeederData();
+
+void SeederData()
+{
+    IServiceScopeFactory? scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+
+    using (IServiceScope? scope = scopedFactory.CreateScope())
+    {
+        SeederBD? service = scope.ServiceProvider.GetService<SeederBD>();
+        service.SeedAsync().Wait();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
