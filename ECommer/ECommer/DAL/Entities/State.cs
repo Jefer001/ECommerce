@@ -4,7 +4,8 @@ namespace ECommer.DAL.Entities
 {
     public class State : Entity
     {
-        [Display(Name = "Dpto/Estado")]
+		#region Properties
+		[Display(Name = "Dpto/Estado")]
         [MaxLength(50)]
         [Required(ErrorMessage = "El campo {0} es obligatorio")]
         public string Name { get; set; }
@@ -17,5 +18,6 @@ namespace ECommer.DAL.Entities
 
 		[Display(Name = "Número de ciudades")]
 		public int CitiesNumber => Cities == null ? 0 : Cities.Count;
+		#endregion
 	}
 }

@@ -7,14 +7,17 @@ namespace ECommer.Controllers
 {
     public class CategoriesController : Controller
     {
-        private readonly DataBaseContext _context;
+		#region Builder
+		private readonly DataBaseContext _context;
 
         public CategoriesController(DataBaseContext context)
         {
             _context = context;
         }
+		#endregion
 
-        [HttpGet]
+		#region Category actions
+		[HttpGet]
         public async Task<IActionResult> Index()
         {
             return _context.Categories != null ?
@@ -145,6 +148,7 @@ namespace ECommer.Controllers
         {
             return (_context.Categories?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+        #endregion
     }
 }
 
