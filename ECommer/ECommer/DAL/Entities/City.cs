@@ -12,6 +12,9 @@ namespace ECommer.DAL.Entities
 
 		[Display(Name = "Estado")]
 		public State State { get; set; }
+
+		[Display(Name = "Usuarios")]
+		public ICollection<User> Users { get; set; }
 		#endregion
 	}
 }

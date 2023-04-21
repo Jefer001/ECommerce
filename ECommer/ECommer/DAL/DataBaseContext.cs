@@ -1,9 +1,10 @@
 ﻿using ECommer.DAL.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommer.DAL
 {
-    public class DataBaseContext : DbContext
+    public class DataBaseContext : IdentityDbContext<User>
     {
         #region Builder
         public DataBaseContext(DbContextOptions <DataBaseContext> option) : base(option) 

@@ -66,10 +66,11 @@ namespace ECommer.Controllers
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
-                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
-                        ModelState.AddModelError(string.Empty, "Ya existe un país con el mismo nombre.");
-                    else
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+					if (dbUpdateException.InnerException.Message.Contains("duplicate"))
+						ViewBag.ErrorMessage("Ya existe un país con el mismo nombre.");
+					//ModelState.AddModelError(string.Empty, "Ya existe un país con el mismo nombre.");
+					else
+						ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
                 }
                 catch (Exception exception)
                 {
