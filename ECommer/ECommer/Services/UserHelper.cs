@@ -1,6 +1,7 @@
 ﻿using ECommer.DAL;
 using ECommer.DAL.Entities;
 using ECommer.Helpers;
+using ECommer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,14 +13,16 @@ namespace ECommer.Services
 		private readonly DataBaseContext _context;
 		private readonly UserManager<User> _userManager;
 		private readonly RoleManager<IdentityRole> _roleManager;
+		private readonly SignInManager<User> _signInManager;
 		#endregion
 
 		#region Builder
-		public UserHelper(DataBaseContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+		public UserHelper(DataBaseContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager, SignInManager<User> signInManager) 
         {
             _context = context;
 			_userManager = userManager;
 			_roleManager = roleManager;
+			_signInManager = signInManager;
         }
 		#endregion
 
@@ -57,6 +60,16 @@ namespace ECommer.Services
 		public async Task<bool> IsUserInRoleAsync(User user, string roleName)
 		{
 			return await _userManager.IsInRoleAsync(user, roleName);
+		}
+
+		public async Task<SignInResult> LoginAsync(LoginViewModel loginViewModel)
+		{
+			return await _signInManager.PasswordSignInAsync(loginViewModel.Username, loginViewModel.Password, loginViewModel.RememberMe, false);
+		}
+
+		public async Task LogoutAsync()
+		{
+			await _signInManager.SignOutAsync();
 		}
 		#endregion
 	}
