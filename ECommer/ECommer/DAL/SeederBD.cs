@@ -1,15 +1,21 @@
 ﻿using ECommer.DAL.Entities;
+using ECommer.Enum;
+using ECommer.Helpers;
 
 namespace ECommer.DAL
 {
 	public class SeederBD
 	{
-		#region Builder
+		#region Constants
 		private readonly DataBaseContext _context;
+		private readonly IUserHelpers _userHelpers;
+		#endregion
 
-		public SeederBD(DataBaseContext context)
+		#region Builder
+		public SeederBD(DataBaseContext context, IUserHelpers userHelpers)
 		{
 			_context = context;
+			_userHelpers = userHelpers;
 		}
 		#endregion
 
@@ -20,6 +26,9 @@ namespace ECommer.DAL
 
 			await PopulateCategoriesAsync();
 			await PopulateCountiesStatesCitiesAsync();
+			await PopulateRolesAsync();
+			await PopulateUserAsync("First Name Admin", "Last Name Role", "adminrole@yopmail.com", "Phone 3002323232", "Address Street Fighter", "Doc 102030", UserType.Admin);
+			await PopulateUserAsync("First Name User", "Last Name Role", "userrole@yopmail.com", "Phone 3502323232", "AddressStreet Fighter 2", "Doc 405060", UserType.User);
 
 			await _context.SaveChangesAsync();
 		}
@@ -88,6 +97,36 @@ namespace ECommer.DAL
 						}
 					}
 				});
+			}
+		}
+
+		private async Task PopulateRolesAsync()
+		{
+			await _userHelpers.AddRoleAsync(UserType.Admin.ToString());
+			await _userHelpers.AddRoleAsync(UserType.User.ToString());
+		}
+
+		private async Task PopulateUserAsync(string firstName, string lastName, string email, string phone, string address, string document, UserType userType)
+		{
+			User user = await _userHelpers.GetUserAsync(email);
+
+			if (user == null)
+			{
+				user = new User
+				{
+					CreatedDate = DateTime.Now,
+					FirstName = firstName,
+					LastName = lastName,
+					Email = email,
+					UserName = email,
+					PhoneNumber = phone,
+					Address = address,
+					Document = document,
+					City = _context.Cities.FirstOrDefault(),
+					UserType = userType
+				};
+				await _userHelpers.AddUserAsync(user, "123456");
+				await _userHelpers.AddUserToRoleAsync(user, userType.ToString());
 			}
 		}
 		#endregion
