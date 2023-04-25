@@ -24,6 +24,9 @@ builder.Services.AddScoped<IUserHelpers, UserHelper>();
 //Builder para llamar la interfaz IDroDownListhelper.cs
 builder.Services.AddScoped<IDropDownListHelper, DropDownListHelper>();
 
+//Builder para llamar la interfaz IAzureStorageHelper.cs
+builder.Services.AddScoped<IAzureBlobHelper, AzureBlobHelper>();
+
 builder.Services.AddIdentity<User, IdentityRole>(io =>
 {
     io.User.RequireUniqueEmail = true;

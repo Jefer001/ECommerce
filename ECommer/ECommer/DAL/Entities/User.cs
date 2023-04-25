@@ -40,7 +40,7 @@ namespace ECommer.DAL.Entities
 		[Display(Name = "Foto")]
 		public string ImageFullPath => ImageId == Guid.Empty
 			? $"https://localhost:7120//images/noimage.png"
-			: $"http://ecommer.blob.core.windows.net/users/{ImageId}";
+			: $"http://sales2023.blob.core.windows.net/users/{ImageId}";
 
 		[Display(Name = "Tipo de usuario")]
 		public UserType UserType { get; set; }
