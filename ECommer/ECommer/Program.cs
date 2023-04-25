@@ -10,7 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<DataBaseContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<DataBaseContext>(
+    o => o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
@@ -19,6 +20,9 @@ builder.Services.AddTransient<SeederBD>();
 
 //Builder para llamar la interfaz IUserHerper.cs
 builder.Services.AddScoped<IUserHelpers, UserHelper>();
+
+//Builder para llamar la interfaz IDroDownListhelper.cs
+builder.Services.AddScoped<IDropDownListHelper, DropDownListHelper>();
 
 builder.Services.AddIdentity<User, IdentityRole>(io =>
 {
