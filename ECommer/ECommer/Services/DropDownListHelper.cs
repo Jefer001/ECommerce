@@ -33,7 +33,8 @@ namespace ECommer.Services
             listCategories.Insert(0, new SelectListItem
             {
                 Text = "Seleccione una categoía...",
-                Value = "0"
+                Value = Guid.Empty.ToString(),
+                Selected = true
             });
 
             return listCategories;
@@ -53,7 +54,8 @@ namespace ECommer.Services
             listCountries.Insert(0, new SelectListItem
             {
                 Text = "Seleccione un país...",
-                Value = "0"
+                Value = Guid.Empty.ToString(),
+                Selected = true
             });
 
             return listCountries;
@@ -73,8 +75,9 @@ namespace ECommer.Services
 
             listStates.Insert(0, new SelectListItem
             {
-                Text = "Seleccione una cuidad...",
-                Value = "0"
+                Text = "Seleccione un estado...",
+                Value = Guid.Empty.ToString(),
+                Selected = true
             });
 
             return listStates;
@@ -95,7 +98,8 @@ namespace ECommer.Services
             listCities.Insert(0, new SelectListItem
             {
                 Text = "Seleccione una cuidad...",
-                Value = "0"
+                Value = Guid.Empty.ToString(),
+                Selected = true
             });
 
             return listCities;
