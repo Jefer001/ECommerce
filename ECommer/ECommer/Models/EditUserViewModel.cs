@@ -42,7 +42,7 @@ namespace ECommer.Models
             ? $"https://localhost:7120/images/noimage.png"
             : $"https://sales2023.blob.core.windows.net/users/{ImageId}";
 
-        [Display(Name = "Image")]
+        [Display(Name = "Imagen")]
         public IFormFile ImageFile { get; set; }
 
         [Display(Name = "País")]
