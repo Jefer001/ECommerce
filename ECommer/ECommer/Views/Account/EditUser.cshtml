@@ -1,52 +1,33 @@
-﻿@model ECommer.Models.AddUserViewModel
-
+﻿@model ECommer.Models.EditUserViewModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Edit";
 }
 
-<h2>Registrar</h2>
+<h2>Editar</h2>
 
 <h4>Usuario</h4>
 <hr />
 <div class="row">
-    <div class="col-md-12">
-        <form asp-action="Register" enctype="multipart/form-data">
+    <div class="col-md-8">
+        <form asp-action="EditUser" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="UserType" />
+            <input type="hidden" asp-for="ImageId" />
             <input type="hidden" asp-for="Countries" />
             <input type="hidden" asp-for="States" />
             <input type="hidden" asp-for="Cities" />
 
-            <div class="form-floating mb-3">
-                <input asp-for="Username" type="email" class="form-control" placeholder="name@example.com"/>
-                <label asp-for="Username" class="form-label"></label>
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-floating mb-3">
-                        <input asp-for="Password" type="password" class="form-control" placeholder="Password"/>
-                        <label asp-for="Password" class="control-label"></label>
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-floating mb-3">
-                        <input asp-for="PasswordConfirm" type="password" class="form-control" placeholder="Password"/>
-                        <label asp-for="PasswordConfirm" class="control-label"></label>
-                        <span asp-validation-for="PasswordConfirm" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-
             <partial name="../Shared/PartialViews/_User" />
 
             <div class="form-group mt-2">
-                <input type="submit" value="Registrar" class="btn btn-outline-primary" />
+                <input type="submit" value="Guardar" class="btn btn-outline-primary" />
+                <a asp-action="ChangePassword" class="btn btn-outline-secondary">Cambiar Contraseña</a>
+                <a asp-action="Index" asp-controller="Home" class="btn btn-outline-success">Regresar</a>
             </div>
-
         </form>
+    </div>
+    <div class="col-md-4">
+        <img src="@Model.ImageFullPath" style="width:300px;height:300px;border-radius:50%" />
     </div>
 </div>
 
@@ -57,12 +38,13 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $("#CountryId").change(function () {
+                debugger;
                 $("#StateId").empty();
-                $("#StateId").append('<option value="0">Selecciona un estado...</option>');
+                $("#StateId").append('<option value="0">Selecciona un Departamento / Estado...</option>');
                 $("#CityId").empty();
                 $("#CityId").append('<option value="0">Selecciona una ciudad...</option>');
                 $.ajax({
-                    type: 'GET',
+                    type: 'POST',
                     url: '@Url.Action("GetStates")',
                     dataType: 'json',
                     data: { countryId: $("#CountryId").val() },
@@ -83,12 +65,13 @@
                 $("#CityId").empty();
                 $("#CityId").append('<option value="0">Selecciona una ciudad...</option>');
                 $.ajax({
-                    type: 'GET',
+                    type: 'POST',
                     url: '@Url.Action("GetCities")',
                     dataType: 'json',
                     data: { stateId: $("#StateId").val() },
                     success: function (cities) {
                         $.each(cities, function (i, city) {
+                            debugger;
                             $("#CityId").append('<option value="'
                                 + city.id + '">'
                                 + city.name + '</option>');
@@ -102,4 +85,4 @@
             })
         });
     </script>
-    }
+}

@@ -79,8 +79,10 @@ namespace ECommer.Services
 		public async Task<User> GetUserAsync(string email)
 		{
 			return await _context.Users
-				.Include(c => c.City)
-				.FirstOrDefaultAsync(u => u.Email == email);
+				.Include(u => u.City)
+                .ThenInclude(c => c.State)
+                .ThenInclude(s => s.Country)
+                .FirstOrDefaultAsync(u => u.Email.Equals(email));
 		}
 
 		public async Task<bool> IsUserInRoleAsync(User user, string roleName)
@@ -97,6 +99,25 @@ namespace ECommer.Services
 		{
 			await _signInManager.SignOutAsync();
 		}
-		#endregion
-	}
+
+		public async Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword)
+		{
+			return await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+		}
+
+		public async Task<IdentityResult> UpdateUserAsync(User user)
+		{
+			return await _userManager.UpdateAsync(user);
+		}
+
+		public async Task<User> GetUserAsync(Guid userId)
+		{
+			return await _context.Users
+				.Include(u => u.City)
+				.ThenInclude(c => c.State)
+				.ThenInclude(s => s.Country)
+				.FirstOrDefaultAsync(u => u.Id.Equals(userId.ToString()));
+		}
+        #endregion
+    }
 }

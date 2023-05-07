@@ -3,6 +3,7 @@ using ECommer.DAL.Entities;
 using ECommer.Enum;
 using ECommer.Helpers;
 using ECommer.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -117,6 +118,86 @@ namespace ECommer.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> EditUser()
+        {
+            User user = await _userHelpers.GetUserAsync(User.Identity.Name);
+            if (user == null) return NotFound();
+
+            EditUserViewModel editUserViewModel = new()
+            {
+                Address = user.Address,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Document = user.Document,
+                PhoneNumber = user.PhoneNumber,
+                ImageId = user.ImageId,
+                Cities = await _dropDownListHelper.GetDDLCitiesAsync(user.City.State.Id),
+                CityId = user.City.Id,
+                Countries = await _dropDownListHelper.GetDDLCountriesAsync(),
+                CountryId = user.City.State.Country.Id,
+                States = await _dropDownListHelper.GetDDLStatesAsync(user.City.State.Country.Id),
+                StateId = user.City.State.Id,
+                Id = Guid.Parse(user.Id)
+            };
+            return View(editUserViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditUser(EditUserViewModel editUserViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                Guid imageId = editUserViewModel.ImageId;
+                if (editUserViewModel.ImageFile != null) imageId = await _azureBlobHelper.UploadAzureBlobAsync(editUserViewModel.ImageFile, "users");
+
+                User user = await _userHelpers.GetUserAsync(User.Identity.Name);
+                user.FirstName = editUserViewModel.FirstName;
+                user.LastName = editUserViewModel.LastName;
+                user.Document = editUserViewModel.Document;
+                user.Address = editUserViewModel.Address;
+                user.PhoneNumber = editUserViewModel.PhoneNumber;
+                user.ImageId = imageId;
+                user.City = await _context.Cities.FindAsync(editUserViewModel.CityId);
+
+                IdentityResult result = await _userHelpers.UpdateUserAsync(user);
+                if (result.Succeeded) return RedirectToAction("Index", "Home");
+                else ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault().Description);
+            }
+            await FillDropDownListLocation(editUserViewModel);
+            return View(editUserViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel changePasswordViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                if (changePasswordViewModel.OldPassword.Equals(changePasswordViewModel.NewPassword))
+                {
+                    ModelState.AddModelError(string.Empty, "Debes ingresar una contraseña diferente");
+                    return View(changePasswordViewModel);
+                }
+                User user = await _userHelpers.GetUserAsync(User.Identity?.Name);
+                if (user != null)
+                {
+                    IdentityResult result = await _userHelpers.ChangePasswordAsync(user, changePasswordViewModel.OldPassword, changePasswordViewModel.NewPassword);
+                    if (result.Succeeded) return RedirectToAction("EditUser");
+                    else ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault().Description);
+                }
+                else ModelState.AddModelError(string.Empty, "Usuario no encontrado.");
+            }
+            return View(changePasswordViewModel);
+        }
+
+        [HttpGet]
         public JsonResult GetStates(Guid countryId)
         {
             Country country = _context.Countries
@@ -147,6 +228,13 @@ namespace ECommer.Controllers
             addUserViewModel.Countries = await _dropDownListHelper.GetDDLCountriesAsync();
             addUserViewModel.States = await _dropDownListHelper.GetDDLStatesAsync(addUserViewModel.CountryId);
             addUserViewModel.Cities = await _dropDownListHelper.GetDDLCitiesAsync(addUserViewModel.StateId);
+        }
+
+        private async Task FillDropDownListLocation(EditUserViewModel editUserViewModel)
+        {
+            editUserViewModel.Countries = await _dropDownListHelper.GetDDLCountriesAsync();
+            editUserViewModel.States = await _dropDownListHelper.GetDDLStatesAsync(editUserViewModel.CountryId);
+            editUserViewModel.Cities = await _dropDownListHelper.GetDDLCitiesAsync(editUserViewModel.StateId);
         }
         #endregion
     }
