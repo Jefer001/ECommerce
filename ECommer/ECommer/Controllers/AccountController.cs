@@ -64,14 +64,12 @@ namespace ECommer.Controllers
         [HttpGet]
         public async Task<IActionResult> Register()
         {
-            Guid guid = new();
-
             AddUserViewModel addUserViewModel = new()
             {
                 Id = Guid.Empty,
                 Countries = await _dropDownListHelper.GetDDLCountriesAsync(),
-                States = await _dropDownListHelper.GetDDLStatesAsync(guid),
-                Cities = await _dropDownListHelper.GetDDLCitiesAsync(guid),
+                States = await _dropDownListHelper.GetDDLStatesAsync(new Guid()),
+                Cities = await _dropDownListHelper.GetDDLCitiesAsync(new Guid()),
                 UserType = UserType.User,
             };
 
@@ -96,7 +94,7 @@ namespace ECommer.Controllers
                 if (user == null)
                 {
                     ModelState.AddModelError(string.Empty, "Este correo ya está siendo usado.");
-                    _ = FillDropDownListLocation(addUserViewModel);
+                    await FillDropDownListLocation(addUserViewModel);
 
                     return View(addUserViewModel);
                 }
@@ -113,7 +111,7 @@ namespace ECommer.Controllers
 
                 if (login.Succeeded) return RedirectToAction("Index", "Home");
             }
-            _ = FillDropDownListLocation(addUserViewModel);
+            await FillDropDownListLocation(addUserViewModel);
 
             return View(addUserViewModel);
         }
@@ -146,10 +144,9 @@ namespace ECommer.Controllers
         #region Private methods
         private async Task FillDropDownListLocation(AddUserViewModel addUserViewModel)
         {
-            Guid guid = new();
             addUserViewModel.Countries = await _dropDownListHelper.GetDDLCountriesAsync();
-            addUserViewModel.States = await _dropDownListHelper.GetDDLStatesAsync(guid);
-            addUserViewModel.Cities = await _dropDownListHelper.GetDDLCitiesAsync(guid);
+            addUserViewModel.States = await _dropDownListHelper.GetDDLStatesAsync(addUserViewModel.CountryId);
+            addUserViewModel.Cities = await _dropDownListHelper.GetDDLCitiesAsync(addUserViewModel.StateId);
         }
         #endregion
     }
