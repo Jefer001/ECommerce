@@ -5,4 +5,30 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+    {
+        <section class="contener">
+            <div class="row"> 
+                <div class="col-4">
+                    <article>
+                        <img src="~/images/paises.png" width="300">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Countries" asp-action="Index">Países</a>
+                    </article> 
+                </div>
+                <div class="col-4">
+                    <article>
+                        <img src="~/images/categoria.jpg" width="300">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Categorías</a>
+                    </article>
+                </div>
+                <div class="col-4">
+                    <article>
+                        <img src="~/images/usuarios.jpg" width="200">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Usuarios</a>
+                    </article>
+                </div>        
+            </div> 
+        </section>
+    }
 </div>
