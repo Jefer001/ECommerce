@@ -156,6 +156,21 @@ namespace ECommer.Controllers
             }
             return View(editProductViewModel);
         }
+
+        public async Task<IActionResult> Details(Guid? productId)
+        {
+            if (productId == null) return NotFound();
+
+            Product product = await _context.Products
+                .Include(p => p.ProductImages) 
+                .Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
+                .FirstOrDefaultAsync(p => p.Id.Equals(productId));
+
+            if (product == null) return NotFound();
+
+            return View(product);
+        }
         #endregion
     }
 }
