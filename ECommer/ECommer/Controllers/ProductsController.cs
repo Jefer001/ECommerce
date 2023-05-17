@@ -309,6 +309,21 @@ namespace ECommer.Controllers
             addProductCategoryViewModel.Categories = await _dropDownListHelper.GetDDLCategoriesAsync();
             return View(addProductCategoryViewModel);
         }
+
+        public async Task<IActionResult> DeleteCategory(Guid? categoryId)
+        {
+            if (categoryId == null) return NotFound();
+
+            ProductCategory productCategory = await _context.ProductCategories
+                .Include(pc => pc.Product)
+                .FirstOrDefaultAsync(pc => pc.Id.Equals(categoryId));
+
+            if (productCategory == null) return NotFound();
+
+            _context.ProductCategories.Remove(productCategory);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { productId = productCategory.Product.Id });
+        }
         #endregion
     }
 }
