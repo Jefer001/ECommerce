@@ -1,6 +1,7 @@
 ﻿using ECommer.DAL.Entities;
 using ECommer.Enum;
 using ECommer.Helpers;
+using ECommer.Services;
 
 namespace ECommer.DAL
 {
@@ -9,13 +10,15 @@ namespace ECommer.DAL
 		#region Constants
 		private readonly DataBaseContext _context;
 		private readonly IUserHelpers _userHelpers;
-		#endregion
+        private readonly IAzureBlobHelper _azureBlobHelper;
+        #endregion
 
-		#region Builder
-		public SeederBD(DataBaseContext context, IUserHelpers userHelpers)
+        #region Builder
+        public SeederBD(DataBaseContext context, IUserHelpers userHelpers, IAzureBlobHelper azureBlobHelper)
 		{
 			_context = context;
 			_userHelpers = userHelpers;
+			_azureBlobHelper = azureBlobHelper;
 		}
 		#endregion
 
@@ -27,10 +30,10 @@ namespace ECommer.DAL
 			await PopulateCategoriesAsync();
 			await PopulateCountiesStatesCitiesAsync();
 			await PopulateRolesAsync();
-			await PopulateUserAsync("First Name Admin", "Last Name Role", "adminrole@yopmail.com", "Phone 3002323232", "Address Street Fighter", "Doc 102030", UserType.Admin);
-			await PopulateUserAsync("First Name User", "Last Name Role", "userrole@yopmail.com", "Phone 3502323232", "AddressStreet Fighter 2", "Doc 405060", UserType.User);
+            await PopulateUserAsync("Steve", "Jobs", "steve_jobs_admin@yopmail.com", "3002323232", "Street Apple", "102030", "admin_use.png", UserType.Admin);
+            await PopulateUserAsync("Bill", "Gates", "bill_gates_user@yopmail.com", "4005656656", "Street Microsoft", "405060", "user.png", UserType.User);
 
-			await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 		}
 		#endregion
 
@@ -106,13 +109,14 @@ namespace ECommer.DAL
 			await _userHelpers.AddRoleAsync(UserType.User.ToString());
 		}
 
-		private async Task PopulateUserAsync(string firstName, string lastName, string email, string phone, string address, string document, UserType userType)
+		private async Task PopulateUserAsync(string firstName, string lastName, string email, string phone, string address, string document, string image, UserType userType)
 		{
 			User user = await _userHelpers.GetUserAsync(email);
 
 			if (user == null)
 			{
-				user = new User
+                Guid imageId = await _azureBlobHelper.UploadAzureBlobAsync($"{Environment.CurrentDirectory}\\wwwroot\\images\\users\\{image}", "users");
+                user = new User
 				{
 					CreatedDate = DateTime.Now,
 					FirstName = firstName,
@@ -123,6 +127,7 @@ namespace ECommer.DAL
 					Address = address,
 					Document = document,
 					City = _context.Cities.FirstOrDefault(),
+					ImageId = imageId,
 					UserType = userType
 				};
 				await _userHelpers.AddUserAsync(user, "123456");
