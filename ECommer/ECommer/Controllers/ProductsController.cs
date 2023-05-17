@@ -219,6 +219,23 @@ namespace ECommer.Controllers
             }
             return View(addProductImageViewModel);
         }
+
+        public async Task<IActionResult> DeleteImage(Guid? imageId)
+        {
+            if (imageId == null) return NotFound();
+
+            ProductImage productImage = await _context.ProductImages
+                .Include(pi => pi.Product)
+                .FirstOrDefaultAsync(pi => pi.Id.Equals(imageId));
+
+            if (productImage == null) return NotFound();
+
+            await _azureBlobHelper.DeleteAzureBlobAsync(productImage.ImageId, "products");
+
+            _context.ProductImages.Remove(productImage);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { productId = productImage.Product.Id });
+        }
         #endregion
     }
 }
