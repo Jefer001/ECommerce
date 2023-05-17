@@ -1,4 +1,5 @@
 ﻿using ECommer.DAL;
+using ECommer.DAL.Entities;
 using ECommer.Helpers;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,33 @@ namespace ECommer.Services
             });
 
             return listCategories;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetDDLCategoriesAsync(IEnumerable<Category> filterCategories)
+        {
+            List<Category> categories = await _context.Categories.ToListAsync();
+            List<Category> categoriesFiltered = new();
+
+            foreach (Category category in categories)
+                if (!filterCategories.Any(c => c.Id.Equals(category.Id)))
+                    categoriesFiltered.Add(category);
+
+            List<SelectListItem> ListCategories = categoriesFiltered
+                .Select(c => new SelectListItem 
+                { 
+                    Text = c.Name, Value = c.Id.ToString()
+                })
+                .OrderBy(c => c.Text)
+                .ToList();
+
+            ListCategories.Insert(0, new SelectListItem
+            {
+                Text = "Seleccione una categoría...",
+                Value = Guid.Empty.ToString(),
+                Selected = true
+            });
+
+            return ListCategories;
         }
 
         public async Task<IEnumerable<SelectListItem>> GetDDLCountriesAsync()

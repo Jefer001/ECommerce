@@ -118,7 +118,7 @@ namespace ECommer.Controllers
                 Id = product.Id,
                 Name = product.Name,
                 Price = product.Price,
-                Stock = product.Stock,
+                Stock = product.Stock
             };
             return View(editProductViewModel);
         }
@@ -291,9 +291,8 @@ namespace ECommer.Controllers
             AddProductCategoryViewModel addProductCategoryViewModel = new()
             {
                 ProductId = product.Id,
-                Categories = await _dropDownListHelper.GetDDLCategoriesAsync(),
+                Categories = await _dropDownListHelper.GetDDLCategoriesAsync(categories),
             };
-
             return View(addProductCategoryViewModel);
         }
 
@@ -337,7 +336,7 @@ namespace ECommer.Controllers
                 Name = pc.Category.Name
             }).ToList();
 
-            addProductCategoryViewModel.Categories = await _dropDownListHelper.GetDDLCategoriesAsync();
+            addProductCategoryViewModel.Categories = await _dropDownListHelper.GetDDLCategoriesAsync(categories);
             return View(addProductCategoryViewModel);
         }
 
