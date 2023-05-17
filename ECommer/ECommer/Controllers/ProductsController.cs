@@ -171,6 +171,38 @@ namespace ECommer.Controllers
 
             return View(product);
         }
+
+        public async Task<IActionResult> Delete(Guid? productId)
+        {
+            if (productId == null) return NotFound();
+
+            Product product = await _context.Products
+                .Include(p => p.ProductCategories)
+                .Include(p => p.ProductImages)
+                .FirstOrDefaultAsync(p => p.Id.Equals(productId));
+
+            if (product == null) return NotFound();
+
+            return View(product);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(Product productModel)
+        {
+            Product product = await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductCategories)
+                .FirstOrDefaultAsync(p => p.Id.Equals(productModel.Id));
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+
+            foreach (ProductImage productImage in product.ProductImages)
+                await _azureBlobHelper.DeleteAzureBlobAsync(productImage.ImageId, "products");
+
+            return RedirectToAction(nameof(Index));
+        }
         #endregion
 
         #region Image actions
@@ -278,7 +310,6 @@ namespace ECommer.Controllers
             {
                 try
                 {
-                    //Product product = await _context.Products.FirstAsync(addProductCategoryViewModel.ProductId);
                     Category category = await _context.Categories.FindAsync(addProductCategoryViewModel.CategoryId);
 
                     if (product == null || category == null) return NotFound();
