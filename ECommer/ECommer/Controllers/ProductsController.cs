@@ -212,9 +212,9 @@ namespace ECommer.Controllers
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Details), new { productId = product.Id });
                 }
-                catch (Exception exception)
+                catch (Exception ex)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                 }
             }
             return View(addProductImageViewModel);
@@ -235,6 +235,79 @@ namespace ECommer.Controllers
             _context.ProductImages.Remove(productImage);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { productId = productImage.Product.Id });
+        }
+        #endregion
+
+        #region Category actions
+        public async Task<IActionResult> AddCategory(Guid? productId)
+        {
+            if (productId == null) return NotFound();
+
+            Product product = await _context.Products
+                .Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
+                .FirstOrDefaultAsync(p => p.Id.Equals(productId));
+
+            if (product == null) return NotFound();
+
+            List<Category> categories = product.ProductCategories.Select(pc => new Category
+            {
+                Id = pc.Category.Id,
+                Name = pc.Category.Name
+            }).ToList();
+
+            AddProductCategoryViewModel addProductCategoryViewModel = new()
+            {
+                ProductId = product.Id,
+                Categories = await _dropDownListHelper.GetDDLCategoriesAsync(),
+            };
+
+            return View(addProductCategoryViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddCategory(AddProductCategoryViewModel addProductCategoryViewModel)
+        {
+            Product product = await _context.Products
+                .Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
+                .FirstOrDefaultAsync(p => p.Id.Equals(addProductCategoryViewModel.ProductId));
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    //Product product = await _context.Products.FirstAsync(addProductCategoryViewModel.ProductId);
+                    Category category = await _context.Categories.FindAsync(addProductCategoryViewModel.CategoryId);
+
+                    if (product == null || category == null) return NotFound();
+
+                    ProductCategory productCategory = new()
+                    {
+                        Product = product,
+                        Category = category
+                    };
+
+                    _context.Add(productCategory);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Details), new { productId = product.Id });
+                }
+                catch (Exception ex)
+                {
+                    addProductCategoryViewModel.Categories = await _dropDownListHelper.GetDDLCategoriesAsync();
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+            }
+
+            List<Category> categories = product.ProductCategories.Select(pc => new Category
+            {
+                Id = pc.Category.Id,
+                Name = pc.Category.Name
+            }).ToList();
+
+            addProductCategoryViewModel.Categories = await _dropDownListHelper.GetDDLCategoriesAsync();
+            return View(addProductCategoryViewModel);
         }
         #endregion
     }
