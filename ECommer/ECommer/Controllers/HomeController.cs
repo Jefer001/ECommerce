@@ -27,6 +27,7 @@ namespace ECommer.Controllers
         }
         #endregion
 
+        #region Home actions
         public async Task<IActionResult> Index()
         {
             List<Product>? products = await _context.Products
@@ -63,6 +64,12 @@ namespace ECommer.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [Route("error/404")]
+        public IActionResult Error404()
+        {
+            return View();
         }
 
         public async Task<IActionResult> AddProductInCart(Guid? productId)
@@ -105,12 +112,80 @@ namespace ECommer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-        [Route("error/404")]
-        public IActionResult Error404()
+        public async Task<IActionResult> DetailsProduct(Guid? productId)
         {
-            return View();
+            if (productId == null) return NotFound();
+
+            Product product = await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
+                .FirstOrDefaultAsync(p => p.Id == productId);
+
+            if (product == null) return NotFound();
+
+            string categories = string.Empty;
+
+            foreach (ProductCategory? category in product.ProductCategories)
+                categories += $"{category.Category.Name}, ";
+
+            categories = categories.Substring(0, categories.Length - 2);
+
+            DetailsProductToCartViewModel detailsProductToCartViewModel = new()
+            {
+                Categories = categories,
+                Description = product.Description,
+                Id = product.Id,
+                Name = product.Name,
+                Price = product.Price,
+                ProductImages = product.ProductImages,
+                Quantity = 1,
+                Stock = product.Stock,
+            };
+
+            return View(detailsProductToCartViewModel);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DetailsProduct(DetailsProductToCartViewModel detailsProductToCartViewModel)
+        {
+            if (!User.Identity.IsAuthenticated) return RedirectToAction("Login", "Account");
+
+            Product product = await _context.Products.FindAsync(detailsProductToCartViewModel.Id);
+            User user = await _userHelper.GetUserAsync(User.Identity.Name);
+
+            if (product == null || user == null) return NotFound();
+
+            // Busca una entrada existente en la tabla TemporalSale para este producto y usuario
+            TemporalSale existingTemporalSale = await _context.TemporalSales
+                .Where(t => t.Product.Id == detailsProductToCartViewModel.Id && t.User.Id == user.Id)
+                .FirstOrDefaultAsync();
+
+            if (existingTemporalSale != null)
+            {
+                // Si existe una entrada, incrementa la cantidad
+                existingTemporalSale.Quantity += detailsProductToCartViewModel.Quantity;
+                existingTemporalSale.ModifiedDate = DateTime.Now;
+            }
+            else
+            {
+                // Si no existe una entrada, crea una nueva
+                TemporalSale temporalSale = new()
+                {
+                    Product = product,
+                    Quantity = 1,
+                    User = user,
+                    Remarks = detailsProductToCartViewModel.Remarks,
+                };
+
+                _context.TemporalSales.Add(temporalSale);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        #endregion
 
         #region Private methods
         private string GetUserFullName()
