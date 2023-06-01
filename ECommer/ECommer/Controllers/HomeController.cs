@@ -207,6 +207,51 @@ namespace ECommer.Controllers
 
             return View(showCartViewModel);
         }
+
+        public async Task<IActionResult> DecreaseQuantity(Guid? temporalSaleId)
+        {
+            if (temporalSaleId == null) return NotFound();
+
+            TemporalSale temporalSale = await _context.TemporalSales.FindAsync(temporalSaleId);
+            if (temporalSale == null) return NotFound();
+
+            if (temporalSale.Quantity > 1)
+            {
+                temporalSale.Quantity--;
+                temporalSale.ModifiedDate = DateTime.Now;
+                _context.TemporalSales.Update(temporalSale);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(ShowCartAndConfirm));
+        }
+
+        public async Task<IActionResult> IncreaseQuantity(Guid? temporalSaleId)
+        {
+            if (temporalSaleId == null) return NotFound();
+
+            TemporalSale temporalSale = await _context.TemporalSales.FindAsync(temporalSaleId);
+            if (temporalSale == null) return NotFound();
+
+            temporalSale.Quantity++;
+            temporalSale.ModifiedDate = DateTime.Now;
+            _context.TemporalSales.Update(temporalSale);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ShowCartAndConfirm));
+        }
+
+        public async Task<IActionResult> DeleteTemporalSale(Guid? temporalSaleId)
+        {
+            if (temporalSaleId == null) return NotFound();
+
+            TemporalSale temporalSale = await _context.TemporalSales.FindAsync(temporalSaleId);
+            if (temporalSale == null) return NotFound();
+
+            _context.TemporalSales.Remove(temporalSale);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(ShowCartAndConfirm));
+        }
         #endregion
 
         #region Private methods
