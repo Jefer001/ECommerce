@@ -7,6 +7,8 @@ namespace ECommer.DAL.Entities
     public class Product : Entity
     {
         #region Properties
+        public ICollection<OrderDetail> OrderDetails { get; set; }
+
         [Display(Name = "Nombre")]
         [MaxLength(50, ErrorMessage = "El campo {0} debe tener máximo {1} caracteres.")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]

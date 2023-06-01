@@ -1,4 +1,5 @@
-﻿using ECommer.DAL;
+﻿using ECommer.Common;
+using ECommer.DAL;
 using ECommer.DAL.Entities;
 using ECommer.Helpers;
 using ECommer.Models;
@@ -15,16 +16,16 @@ namespace ECommer.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly DataBaseContext _context;
         private readonly IUserHelpers _userHelper;
-        //private readonly IOrderHelper _orderHelper;
+        private readonly IOrderHelper _orderHelper;
         #endregion
 
         #region Builder
-        public HomeController(ILogger<HomeController> logger, DataBaseContext context, IUserHelpers userHelpers/*, IOrderHelper orderHelper*/)
+        public HomeController(ILogger<HomeController> logger, DataBaseContext context, IUserHelpers userHelpers, IOrderHelper orderHelper)
         {
             _logger = logger;
             _context = context;
             _userHelper = userHelpers;
-            //_orderHelper = orderHelper;
+            _orderHelper = orderHelper;
         }
         #endregion
 
@@ -218,6 +219,7 @@ namespace ECommer.Controllers
             if (temporalSale.Quantity > 1)
             {
                 temporalSale.Quantity--;
+                _ = temporalSale.Remarks;
                 temporalSale.ModifiedDate = DateTime.Now;
                 _context.TemporalSales.Update(temporalSale);
                 await _context.SaveChangesAsync();
@@ -234,6 +236,7 @@ namespace ECommer.Controllers
             if (temporalSale == null) return NotFound();
 
             temporalSale.Quantity++;
+            _ = temporalSale.Remarks;
             temporalSale.ModifiedDate = DateTime.Now;
             _context.TemporalSales.Update(temporalSale);
             await _context.SaveChangesAsync();
@@ -298,6 +301,33 @@ namespace ECommer.Controllers
             }
 
             return View(editTemporalSaleViewModel);
+        }
+
+        [Authorize]
+        public IActionResult OrderSuccess()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ShowCartAndConfirm(ShowCartViewModel showCartViewModel)
+        {
+            User user = await _userHelper.GetUserAsync(User.Identity.Name);
+            if (user == null) return NotFound();
+
+            showCartViewModel.User = user;
+            showCartViewModel.TemporalSales = await _context.TemporalSales
+                .Include(ts => ts.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Where(ts => ts.User.Id == user.Id)
+            .ToListAsync();
+
+            Response response = await _orderHelper.ProcessOrderAsync(showCartViewModel);
+            if (response.IsSuccess) return RedirectToAction(nameof(OrderSuccess));
+
+            ModelState.AddModelError(string.Empty, response.Message);
+            return View(showCartViewModel);
         }
         #endregion
 

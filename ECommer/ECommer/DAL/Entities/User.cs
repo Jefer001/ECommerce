@@ -6,8 +6,10 @@ namespace ECommer.DAL.Entities
 {
 	public class User : IdentityUser
 	{
-		#region Properties
-		[Display(Name = "Fecha de creacíon")]
+        #region Properties
+        public ICollection<OrderDetail> OrderDetails { get; set; }
+
+        [Display(Name = "Fecha de creacíon")]
 		public DateTime? CreatedDate { get; set; }
 
 		[Display(Name = "Fecha de modificacíon")]

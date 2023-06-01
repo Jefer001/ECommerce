@@ -8,6 +8,7 @@
 
 <div class="row">
     <input type="hidden" asp-for="Remarks" />
+
     <div class="col-md-4">
         <dl class="row">
             <dt class="col-sm-4">
@@ -28,6 +29,9 @@
         <div class="col-md-12">
             <form asp-action="ShowCartAndConfirm">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <input type="hidden" asp-for="Remarks" />
+
                 <div class="form-group">
                     <label asp-for="Remarks" class="control-label"></label>
                     <input asp-for="Remarks" class="form-control" />

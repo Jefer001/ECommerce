@@ -2,12 +2,16 @@
 
 namespace ECommer.DAL.Entities
 {
-    public class TemporalSale : Entity
+    public class OrderDetail : Entity
     {
         #region Properties
-        public ICollection<OrderDetail> OrderDetails { get; set; }
+        public Order Order { get; set; }
 
-        public User User { get; set; }
+        public TemporalSale? TemporalSale { get; set; }
+
+        [DataType(DataType.MultilineText)]
+        [Display(Name = "Comentarios")]
+        public string? Remarks { get; set; }
 
         public Product Product { get; set; }
 
@@ -15,10 +19,6 @@ namespace ECommer.DAL.Entities
         [Display(Name = "Cantidad")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public float Quantity { get; set; }
-
-        [DataType(DataType.MultilineText)]
-        [Display(Name = "Comentarios")]
-        public string? Remarks { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C2}")]
         [Display(Name = "Valor")]
