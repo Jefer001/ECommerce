@@ -20,6 +20,7 @@ namespace ECommer.DAL
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<TemporalSale> TemporalSales { get; set; }
         #endregion
 
         #region Indices
